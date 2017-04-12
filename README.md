@@ -49,7 +49,7 @@ v0.1: 04-17-2013
 
 ## Like This?
 
-If you've enjoyed using `aboki`, feel free to send me some bitcoin!  My address
+If you've enjoyed using `aboki`, feel free to star this project, send me some bitcoin!  My address
 is:
 
 **17AcFdn8kTpGw1R34MC5U5SyZHrMbZK4Sq**
