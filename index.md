@@ -1,37 +1,61 @@
-## Welcome to GitHub Pages
+# aboki
 
-You can use the [editor on GitHub](https://github.com/akinjide/aboki/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+Black market currency rate instantly in your terminal! (Powered by
+[AbokiFx](https://abokifx.com/).)
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+NOTE: I am in no way affiliated with AbokiFx. I don't know anyone that works there, have no relationship with them -- nothing.
 
-### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Prerequisites
 
-```markdown
-Syntax highlighted code block
+Before using `aboki`, you should be familiar with foreign exchange and black market... *Duh!*
 
-# Header 1
-## Header 2
-### Header 3
 
-- Bulleted
-- List
+## Installation
 
-1. Numbered
-2. List
+You can install `aboki` via [pip](http://pip.readthedocs.org/en/latest/):
 
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```bash
+$ sudo pip install aboki
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+Once `aboki` has been installed, you'll can start by running:
 
-### Jekyll Themes
+```bash
+$ aboki test
+```
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/akinjide/aboki/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+## Usage
 
-### Support or Contact
+If you simply run `aboki` on the command line, you'll get a list of help.
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+```bash
+$ aboki recent                          # show recent exchange rates
+$ aboki rates <type>                    # show current exchange rates
+$ aboki rate <currency>                 # show exchange rate for currency
+$ aboki convert <amount> <FROM> <TO>    # see how much money you'll get if you sell
+$ aboki test                            # test aboki
+$ aboki (-h | --help)                   # display help information
+```
+
+All commands that have side effects will prompt you for action before doing anything for added security.
+
+## Changelog
+
+v0.1: 04-17-2013
+
+    - First release!
+
+
+## Like This?
+
+If you've enjoyed using `aboki`, feel free to send me some bitcoin!  My address
+is:
+
+**17AcFdn8kTpGw1R34MC5U5SyZHrMbZK4Sq**
+
+Or...  You could tip me on [paypal](https://www.paypal.me/akinjide) :)
+
+<3
+
+-Akinjide
