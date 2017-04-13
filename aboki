@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """
-aboki
-~~~~~~~
+NAME:
+  aboki -
 
-Black market currency rate instantly in your terminal! (Powered by
-AbokiFx: https://abokifx.com/).
+DESCRIPTION:
+  Black market currency rate instantly in your terminal! (Powered by AbokiFx:
+  https://abokifx.com/).
 
-Usage:
+USAGE:
   aboki recent
   aboki rates <type>
   aboki rate <currency>
@@ -15,14 +16,39 @@ Usage:
   aboki (-h | --help)
   aboki --version
 
-Options:
-  <type>     Show rates for [cbn | movement | lagos_previous | moneygram | westernunion | otherparallel].
-  <currency> Show rate for currency.
-  -h --help  Show this screen.
-  --version  Show version.
+OPTIONS:
+  <type>      (string) Specify rate type for this operation: cbn, movement,
+              lagos_previous, moneygram, westernunion, otherparallel. This
+              defaults to cbn.
+  <currency>  (string) Specify what currency rate to show.
+  <amount>    (float) The amount you'd like to convert.
+  <FROM>      (string) Specify the currency you are converting from.
+  <TO>        (string) Specify the currency you are converting to.
+  -h --help   Show this screen.
+  --version   Show version.
 
-Written by Akinjide Bankole <https://www.akinjide.me/>. Like the software? Send a
-tip to Akinjide: 17AcFdn8kTpGw1R34MC5U5SyZHrMbZK4Sq
+EXAMPLES:
+  o Convert usd to ngn
+
+    The following convert command converts a currency to a specified currency:
+
+      aboki convert 500 usd ngn
+
+    Output:
+
+      Conversion Successful
+      SEE HOW MUCH YOU GET IF YOU SELL
+      ================================
+      {
+        "ngn": 202500.0,
+        "rate": 405.0,
+        "usd": 500.0
+      }
+      ================================
+
+Written by Akinjide Bankole <https://www.akinjide.me/>. Like the software? Star
+on Github <https://github.com/akinjide/aboki>
+Or... Send a tip to Akinjide: 17AcFdn8kTpGw1R34MC5U5SyZHrMbZK4Sq
 """
 
 
@@ -37,13 +63,17 @@ from requests import get, post
 
 # Globals
 API_URI = 'https://www.abokifx.com'
-VERSION = 'aboki 0.1'
+VERSION = 'aboki 0.2'
 
 
 class ABOKI(object):
 
   def __init__(self):
     self.currencies = ['usd', 'gbp', 'eur']
+    self.types = ['cbn', 'movement', 'lagos_previous', 'moneygram', 'westernunion', 'otherparallel']
+
+    self.quotes = 'Quotes:\t*morning\t**midday\t***evening'
+    self.note = '**NOTE**: Buy / Sell => 90 / 100\n'
 
   def make_request(self, path, params={}, data={}, method='GET'):
     """Make the specified API request, and return the HTML data, or quit
@@ -80,7 +110,6 @@ class ABOKI(object):
     """Return the current exchange rate for USD, GBP, EUR."""
     resp = self.make_request('')
     rjson = self.parse(resp)
-
     rates = ' / '.join(rjson['data'][0][1:]).split(' / ')
 
     return dict(zip(self.currencies, [float(rate) for rate in rates if '*' not in rate]))
@@ -89,11 +118,10 @@ class ABOKI(object):
     """List recent exchange rates for USD, GBP, EUR."""
     resp = self.make_request('')
     rjson = self.parse(resp)
-
     underline_len = len(rjson['title'])
 
-    print 'Quotes:\t*morning\t**midday\t***evening'
-    print '**NOTE**: Buy / Sell => / 90 / 100\n'
+    print self.quotes
+    print self.note
     print rjson['title']
     print '==' * underline_len
     print '\t\t\t\t%s\t\t\t%s\t\t%s' % ('USD', 'GBP', 'EUR')
@@ -106,9 +134,9 @@ class ABOKI(object):
   def rates(self, type):
     """List current exchange rates.
 
-    Supported types: cbn, movement, lagos_previous, moneygram, westernunion and otherparallel.
+    Supported types: cbn, movement, lagos_previous, moneygram, westernunion
+    and otherparallel.
     """
-    self.types = ['cbn', 'movement', 'lagos_previous', 'moneygram', 'westernunion', 'otherparallel']
     param = None
 
     if type in self.types:
@@ -125,10 +153,10 @@ class ABOKI(object):
     underline_len = len(rjson['title'])
 
     if type == 'otherparallel' or type == 'movement':
-      print 'Quotes:\t*morning\t**midday\t***evening'
-      print '**NOTE**: Buy / Sell => 90 / 100\n'
+      print self.quotes
+      print self.note
     elif type == 'lagos_previous':
-      print '**NOTE**: Buy / Sell => 90 / 100\n'
+      print self.note
 
     print rjson['title']
     print '==' * underline_len
@@ -151,12 +179,16 @@ class ABOKI(object):
       print '================'
       print xc
       print '================'
+    else:
+      print '\nNot sure which type?'
+      print 'You can specify any of this: ' \
+      'usd, gbp, eur or ngn\n'
 
   def convert(self, amount, FROM, TO):
     """Convert currency with current rate."""
     rates = self.get_current_rate()
     ojson = {}
-    error = "Oops! In progress"
+    error = "Oops! In Progress :("
 
     FROM = FROM.lower().strip(' ')
     TO = TO.lower().strip(' ')
@@ -219,7 +251,7 @@ class ABOKI(object):
     resp = self.make_request('')
 
     if resp:
-      print 'Yippe! you\'ve broke nothing!'
+      print 'Yippe! you\'ve broken nothing!'
     else:
       exit(1)
 
@@ -236,9 +268,11 @@ def main():
   elif arguments['rate']:
     aboki.rate(arguments['<currency>'])
   elif arguments['convert']:
-    aboki.convert(float(arguments['<amount>']), arguments['<FROM>'], arguments['<TO>'])
+    amount = float(arguments['<amount>'])
+    aboki.convert(amount, arguments['<FROM>'], arguments['<TO>'])
   elif arguments['test']:
     aboki.test()
+
 
 if __name__ == '__main__':
   main()
