@@ -15,14 +15,7 @@ Usage:
   aboki (-h | --help)
   aboki --version
 
-Options:
-  <type>     Show rates for [cbn | movement | lagos_previous | moneygram | westernunion | otherparallel].
-  <currency> Show rate for currency.
-  -h --help  Show this screen.
-  --version  Show version.
-
-Written by Akinjide Bankole <https://www.akinjide.me/>. Like the software? Send
-a tip to Akinjide: 17AcFdn8kTpGw1R34MC5U5SyZHrMbZK4Sq
+https://github.com/akinjide/aboki/pull/1/conflicts
 """
 
 from __future__ import absolute_import, print_function  # be ready for Python 3
@@ -42,7 +35,11 @@ VERSION = 'aboki 0.1'
 class ABOKI(object):
 
   def __init__(self):
-    self.currencies = ('usd', 'gbp', 'eur')
+    self.currencies = ['usd', 'gbp', 'eur']
+    self.types = ['cbn', 'movement', 'lagos_previous', 'moneygram', 'westernunion', 'otherparallel']
+
+    self.quotes = 'Quotes:\t*morning\t**midday\t***evening'
+    self.note = '**NOTE**: Buy / Sell => 90 / 100\n'
 
   def make_request(self, path, params={}, data={}, method='GET'):
     """Make the specified API request, and return the HTML data, or quit
@@ -83,11 +80,11 @@ class ABOKI(object):
 
     underline_len = len(rjson['title'])
 
-    print('Quotes:\t*morning\t**midday\t***evening')
-    print('**NOTE**: Buy / Sell => / 90 / 100\n')
-    print(rjson['title'])
-    print('==' * underline_len)
-    print('\t\t\t\t%s\t\t\t%s\t\t%s' % ('USD', 'GBP', 'EUR'))
+    print self.quotes
+    print self.note
+    print rjson['title']
+    print '==' * underline_len
+    print '\t\t\t\t%s\t\t\t%s\t\t%s' % ('USD', 'GBP', 'EUR')
 
     for x in rjson['data']:
       print('\t|\t'.join(x))
@@ -115,11 +112,11 @@ class ABOKI(object):
     rjson = self.parse(resp)
     underline_len = len(rjson['title'])
 
-    if type in ('otherparallel', 'movement'):
-      print('Quotes:\t*morning\t**midday\t***evening')
-      print('**NOTE**: Buy / Sell => 90 / 100\n')
+    if type == 'otherparallel' or type == 'movement':
+      print self.quotes
+      print self.note
     elif type == 'lagos_previous':
-      print('**NOTE**: Buy / Sell => 90 / 100\n')
+      print self.note
 
     print(rjson['title'])
     print('==' * underline_len)
@@ -138,15 +135,25 @@ class ABOKI(object):
     xc = rates.get(currency)
 
     if xc:
-      print('%s Exchange Rate' % (currency.upper()))
-      print('================')
-      print(xc)
-      print('================')
+      print '%s Exchange Rate' % (currency.upper())
+      print '================'
+      print xc
+      print '================'
+    else:
+      print '\nNot sure which type?'
+      print 'You can specify any of this: ' \
+      'usd, gbp, eur or ngn\n'
 
   def convert(self, amount, FROM, TO):
     """Convert currency with current rate."""
     rates = self.get_current_rate()
 
+    ojson = {}
+    error = "Oops! In Progress :("
+
+    FROM = FROM.lower().strip(' ')
+    TO = TO.lower().strip(' ')
+    
     FROM = FROM.strip().lower()
     TO = TO.strip().lower()
     error = 'Oops! In progress.  FROM: %s, TO: %s' % (FROM, TO)
@@ -172,7 +179,7 @@ class ABOKI(object):
     resp = self.make_request('')
 
     if resp:
-      print("Yippe! you've broke nothing!")
+      print 'Yippe! you\'ve broken nothing!'
     else:
       exit(1)
 
