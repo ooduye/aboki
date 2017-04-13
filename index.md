@@ -42,7 +42,7 @@ All commands that have side effects will prompt you for action before doing anyt
 
 ## Changelog
 
-v0.1: 04-17-2013
+v0.1: 04-13-2017
 
     - First release!
 
