@@ -47,7 +47,8 @@ EXAMPLES:
 
 Written by Akinjide Bankole <https://www.akinjide.me/>. Like the software? Star
 on Github <https://github.com/akinjide/aboki>
-Or... Send a tip to Akinjide: 17AcFdn8kTpGw1R34MC5U5SyZHrMbZK4Sq"""
+Or... Send a tip to Akinjide: 17AcFdn8kTpGw1R34MC5U5SyZHrMbZK4Sq
+"""
 
 from __future__ import absolute_import, print_function  # be ready for Python 3
 from json import dumps
