@@ -150,8 +150,7 @@ class ABOKI(object):
     FROM = FROM.strip().lower()
     TO = TO.strip().lower()
     error = 'Oops! In progress.  FROM: %s, TO: %s' % (FROM, TO)
-    assert FROM and TO, error
-    assert 'ngn' in (FROM, TO), error
+    assert FROM and TO and 'ngn' in (FROM, TO), error
     assert FROM in self.currencies or TO in self.currencies, error
 
     ojson = {FROM: amount}
