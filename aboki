@@ -53,7 +53,7 @@ from requests import get, post
 
 # Globals
 API_URI = 'https://www.abokifx.com'
-VERSION = 'aboki 0.1'
+VERSION = 'aboki 0.2'
 
 
 class ABOKI(object):
