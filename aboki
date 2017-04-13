@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """
-aboki
-~~~~~~~
-
-Black market currency rate instantly in your terminal! (Powered by
-AbokiFx: https://abokifx.com/).
-
-Usage:
+NAME:
+  aboki -
+DESCRIPTION:
+  Black market currency rate instantly in your terminal! (Powered by AbokiFx:
+  https://abokifx.com/).
+USAGE:
   aboki recent
   aboki rates <type>
   aboki rate <currency>
@@ -14,7 +13,6 @@ Usage:
   aboki test
   aboki (-h | --help)
   aboki --version
-
 OPTIONS:
   <type>      (string) Specify rate type for this operation: cbn, movement,
               lagos_previous, moneygram, westernunion, otherparallel. This
@@ -25,16 +23,11 @@ OPTIONS:
   <TO>        (string) Specify the currency you are converting to.
   -h --help   Show this screen.
   --version   Show version.
-
 EXAMPLES:
   o Convert usd to ngn
-
     The following convert command converts a currency to a specified currency:
-
       aboki convert 500 usd ngn
-
     Output:
-
       Conversion Successful
       SEE HOW MUCH YOU GET IF YOU SELL
       ================================
@@ -44,11 +37,11 @@ EXAMPLES:
         "usd": 500.0
       }
       ================================
-
 Written by Akinjide Bankole <https://www.akinjide.me/>. Like the software? Star
 on Github <https://github.com/akinjide/aboki>
 Or... Send a tip to Akinjide: 17AcFdn8kTpGw1R34MC5U5SyZHrMbZK4Sq
 """
+
 
 from __future__ import absolute_import, print_function  # be ready for Python 3
 from json import dumps
