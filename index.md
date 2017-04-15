@@ -16,7 +16,7 @@ Before using `aboki`, you should be familiar with foreign exchange and black mar
 You can install `aboki` via [pip](http://pip.readthedocs.org/en/latest/):
 
 ```bash
-$ sudo pip install aboki
+$ pip install aboki
 ```
 
 Once `aboki` has been installed, you'll can start by running:
@@ -42,7 +42,11 @@ All commands that have side effects will prompt you for action before doing anyt
 
 ## Changelog
 
-v0.1: 04-13-2017
+v0.2: 04-16-2017
+
+    - Fixing some small documentation issues.
+
+v0.1: 04-12-2017
 
     - First release!
 
