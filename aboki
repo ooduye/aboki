@@ -66,12 +66,11 @@ API_URI = 'https://www.abokifx.com'
 VERSION = 'aboki 0.2'
 
 
-class ABOKI(object):
+class Aboki:
 
   def __init__(self):
     self.currencies = ['usd', 'gbp', 'eur']
     self.types = ['cbn', 'movement', 'lagos_previous', 'moneygram', 'westernunion', 'otherparallel']
-
     self.quotes = 'Quotes:\t*morning\t**midday\t***evening'
     self.note = '**NOTE**: Buy / Sell => 90 / 100\n'
 
@@ -260,7 +259,7 @@ def main():
   """Handle programmer input, and do stuffs."""
   arguments = docopt(__doc__, version=VERSION)
 
-  aboki = ABOKI()
+  aboki = Aboki()
   if arguments['recent']:
     aboki.recent()
   elif arguments['rates']:
