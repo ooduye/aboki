@@ -6,7 +6,7 @@ setup(
 
 	# Basic package information:
 	name = 'aboki',
-	version = '0.2',
+	version = '0.3',
 	scripts = ('aboki', ),
 
 	# Packaging options:
