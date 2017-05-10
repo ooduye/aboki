@@ -42,6 +42,10 @@ All commands that have side effects will prompt you for action before doing anyt
 
 ## Changelog
 
+v0.3: 05-09-2017
+
+    - Python 3 Support and Error handling.
+
 v0.2: 04-16-2017
 
     - Fixing some small documentation issues.
