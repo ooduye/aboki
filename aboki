@@ -64,7 +64,6 @@ on Github <https://github.com/akinjide/aboki>
 Or... Send a tip to Akinjide: 17AcFdn8kTpGw1R34MC5U5SyZHrMbZK4Sq
 """
 
-
 from __future__ import absolute_import, print_function
 from json import dumps
 from sys import exit
@@ -74,186 +73,185 @@ from docopt import docopt
 from requests import get, post, exceptions
 from pkg_resources import get_distribution
 
-
 # Globals
 API_URI = 'https://www.abokifx.com'
 VERSION = 'aboki %s' % get_distribution("aboki").version
 
 
 class Aboki:
+    def __init__(self):
+        self.currencies = ('usd', 'gbp', 'eur')
+        self.types = ['cbn', 'movement', 'lagos_previous', 'moneygram', 'westernunion', 'otherparallel']
+        self.quotes = 'Quotes:\t*morning\t**midday\t***evening'
+        self.note = '**NOTE**: Buy / Sell => 90 / 100\n'
 
-  def __init__(self):
-    self.currencies = ('usd', 'gbp', 'eur')
-    self.types = ['cbn', 'movement', 'lagos_previous', 'moneygram', 'westernunion', 'otherparallel']
-    self.quotes = 'Quotes:\t*morning\t**midday\t***evening'
-    self.note = '**NOTE**: Buy / Sell => 90 / 100\n'
+    def make_request(self, path, params={}, data={}, method='GET'):
+        """Make the specified API request, and return the HTML data, or quit
+        with an error.
+        """
 
-  def make_request(self, path, params={}, data={}, method='GET'):
-    """Make the specified API request, and return the HTML data, or quit
-    with an error.
-    """
+        try:
+            if method.lower() == 'post':
+                resp = post('%s/%s' % (API_URI, path), params=params, data=dumps(data),
+                            headers={'Content-Type': 'application/json'})
+            else:
+                resp = get('%s/%s' % (API_URI, path), params=params)
 
-    try:
-      if method.lower() == 'post':
-        resp = post('%s/%s' % (API_URI, path), params=params, data=dumps(data), headers={'Content-Type': 'application/json'})
-      else:
-        resp = get('%s/%s' % (API_URI, path), params=params)
+            if resp.status_code != 200:
+                print('Error connecting. Please try again.')
+                print('If the problem persists, please email r@akinjide.me.')
+                exit(1)
+            return resp.text
 
-      if resp.status_code != 200:
-        print('Error connecting. Please try again.')
-        print('If the problem persists, please email r@akinjide.me.')
-        exit(1)
-      return resp.text
+        except exceptions.RequestException, e:
+            print('Error connecting. Please check network and try again.')
+            print('If the problem persists, please email r@akinjide.me.')
+            exit(1)
 
-    except exceptions.RequestException, e:
-        print('Error connecting. Please check network and try again.')
-        print('If the problem persists, please email r@akinjide.me.')
-        exit(1)
+    def parse(self, content):
+        soup = BeautifulSoup(content, "html5lib")
+        records = soup.select("body .lagos-market-rates table tbody > tr")
+        data = [[str(j) for j in record.stripped_strings
+                 if str(j) not in ('NGN', 'Buy / Sell')] for record in records]
+        return {'title': str(soup.title.string), 'data': data}
 
-  def parse(self, content):
-    soup = BeautifulSoup(content, "html5lib")
-    records = soup.select("body .lagos-market-rates table tbody > tr")
-    data = [[str(j) for j in record.stripped_strings
-             if str(j) not in ('NGN', 'Buy / Sell')] for record in records]
-    return {'title': str(soup.title.string), 'data': data}
+    def get_current_rate(self):
+        """Return the current exchange rate for USD, GBP, EUR."""
 
-  def get_current_rate(self):
-    """Return the current exchange rate for USD, GBP, EUR."""
+        resp = self.make_request('')
+        rjson = self.parse(resp)
+        rates = ' / '.join(rjson['data'][0][1:]).split(' / ')
+        return dict(zip(self.currencies, [float(rate) for rate in rates if '*' not in rate]))
 
-    resp = self.make_request('')
-    rjson = self.parse(resp)
-    rates = ' / '.join(rjson['data'][0][1:]).split(' / ')
-    return dict(zip(self.currencies, [float(rate) for rate in rates if '*' not in rate]))
+    def recent(self):
+        """List recent exchange rates for USD, GBP, EUR."""
 
-  def recent(self):
-    """List recent exchange rates for USD, GBP, EUR."""
+        resp = self.make_request('')
+        rjson = self.parse(resp)
+        underline = '==' * len(rjson['title'])
 
-    resp = self.make_request('')
-    rjson = self.parse(resp)
-    underline = '==' * len(rjson['title'])
+        print(self.quotes)
+        print(self.note)
+        print(rjson['title'])
+        print(underline)
+        print('\t\t\t\t%s\t\t\t%s\t\t%s' % ('USD', 'GBP', 'EUR'))
 
-    print(self.quotes)
-    print(self.note)
-    print(rjson['title'])
-    print(underline)
-    print('\t\t\t\t%s\t\t\t%s\t\t%s' % ('USD', 'GBP', 'EUR'))
+        for datum in rjson['data']:
+            print('\t|\t'.join(datum))
 
-    for datum in rjson['data']:
-      print('\t|\t'.join(datum))
+        print(underline)
 
-    print(underline)
+    def rates(self, type):
+        """List current exchange rates.
+    
+        Supported types: cbn, movement, lagos_previous, moneygram, westernunion and otherparallel.
+        """
 
-  def rates(self, type):
-    """List current exchange rates.
+        param = None
+        if type in self.types:
+            param = {'rates': self.types[self.types.index(type)]}
+        else:
+            print('\nNot sure which type?')
+            print('You can specify any of this: '
+                  'cbn, movement, lagos_previous, moneygram, westernunion or otherparallel\n'
+                  '[default: cbn]\n')
+            param = {'rates': 'cbn'}
 
-    Supported types: cbn, movement, lagos_previous, moneygram, westernunion and otherparallel.
-    """
+        resp = self.make_request('ratetypes', param)
+        rjson = self.parse(resp)
+        underline = '==' * len(rjson['title'])
 
-    param = None
-    if type in self.types:
-      param = {'rates': self.types[self.types.index(type)]}
-    else:
-      print('\nNot sure which type?')
-      print('You can specify any of this: '
-      'cbn, movement, lagos_previous, moneygram, westernunion or otherparallel\n'
-      '[default: cbn]\n')
-      param = {'rates': 'cbn'}
+        if type in ('otherparallel', 'movement'):
+            print(self.quotes)
+            print(self.note)
+        elif type == 'lagos_previous':
+            print(self.note)
 
-    resp = self.make_request('ratetypes', param)
-    rjson = self.parse(resp)
-    underline = '==' * len(rjson['title'])
+        print(rjson['title'])
+        print(underline)
 
-    if type in ('otherparallel', 'movement'):
-      print(self.quotes)
-      print(self.note)
-    elif type == 'lagos_previous':
-      print(self.note)
+        for index, data in enumerate(rjson['data']):
+            if index == 0:
+                print('\t\t\t%s' % '\t\t\t'.join(data))
+            else:
+                print('\t|\t'.join(data))
 
-    print(rjson['title'])
-    print(underline)
+        print(underline)
 
-    for index, data in enumerate(rjson['data']):
-      if index == 0:
-        print('\t\t\t%s' % '\t\t\t'.join(data))
-      else:
-        print('\t|\t'.join(data))
+    def rate(self, currency):
+        """List current exchange rate for currency."""
 
-    print(underline)
+        rates = self.get_current_rate()
+        xc = rates.get(currency)
 
-  def rate(self, currency):
-    """List current exchange rate for currency."""
+        if xc:
+            print('%s Exchange Rate' % (currency.upper()))
+            print('================')
+            print(xc)
+            print('================')
+        else:
+            print('\nNot sure which type?')
+            print('You can specify any of this: usd, gbp, eur or ngn\n')
 
-    rates = self.get_current_rate()
-    xc = rates.get(currency)
+    def convert(self, amount, FROM, TO):
+        """Convert currency with current rate."""
 
-    if xc:
-      print('%s Exchange Rate' % (currency.upper()))
-      print('================')
-      print(xc)
-      print('================')
-    else:
-      print('\nNot sure which type?')
-      print('You can specify any of this: usd, gbp, eur or ngn\n')
+        rates = self.get_current_rate()
+        FROM = FROM.strip().lower()
+        TO = TO.strip().lower()
+        error = 'Oops! You are trying to do something useful.  FROM: %s, TO: %s' % (FROM, TO)
 
-  def convert(self, amount, FROM, TO):
-    """Convert currency with current rate."""
+        try:
+            assert FROM and TO and 'ngn' in (FROM, TO), error
+            assert FROM in self.currencies or TO in self.currencies, error
+        except AssertionError, e:
+            print(e)
+            exit(1)
 
-    rates = self.get_current_rate()
-    FROM = FROM.strip().lower()
-    TO = TO.strip().lower()
-    error = 'Oops! You are trying to do something useful.  FROM: %s, TO: %s' % (FROM, TO)
+        ojson = {FROM: amount}
+        if FROM == 'ngn':
+            ojson[TO] = amount / rates[TO]
+            ojson['rate'] = rates[TO]
+        elif FROM in self.currencies:
+            ojson['ngn'] = amount * rates[FROM]
+            ojson['rate'] = rates[FROM]
 
-    try:
-      assert FROM and TO and 'ngn' in (FROM, TO), error
-      assert FROM in self.currencies or TO in self.currencies, error
-    except AssertionError, e:
-      print(e)
-      exit(1)
+        print('Conversion Successful')
+        print('SEE HOW MUCH YOU GET IF YOU SELL')
+        print('================================')
+        print(dumps(ojson, sort_keys=True, indent=2, separators=(',', ': ')))
+        print('================================')
 
-    ojson = {FROM: amount}
-    if FROM == 'ngn':
-      ojson[TO] = amount / rates[TO]
-      ojson['rate'] = rates[TO]
-    elif FROM in self.currencies:
-      ojson['ngn'] = amount * rates[FROM]
-      ojson['rate'] = rates[FROM]
+    def test(self):
+        """Test to make sure everything's working."""
 
-    print('Conversion Successful')
-    print('SEE HOW MUCH YOU GET IF YOU SELL')
-    print('================================')
-    print(dumps(ojson, sort_keys=True, indent=2, separators=(',', ': ')))
-    print('================================')
-
-  def test(self):
-    """Test to make sure everything's working."""
-
-    resp = self.make_request('')
-    if resp:
-      print("Yippe! you've broken nothing!")
-    else:
-      print("Oops! Catastrophic Failure")
-      print('If the problem persists, please email r@akinjide.me.')
-      exit(1)
+        resp = self.make_request('')
+        if resp:
+            print("Yippe! you've broken nothing!")
+        else:
+            print("Oops! Catastrophic Failure")
+            print('If the problem persists, please email r@akinjide.me.')
+            exit(1)
 
 
 def main():
-  """Handle programmer input, and do stuffs."""
+    """Handle programmer input, and do stuffs."""
 
-  arguments = docopt(__doc__, version=VERSION)
-  aboki = Aboki()
+    arguments = docopt(__doc__, version=VERSION)
+    aboki = Aboki()
 
-  if arguments['recent']:
-    aboki.recent()
-  elif arguments['rates']:
-    aboki.rates(arguments['<type>'])
-  elif arguments['rate']:
-    aboki.rate(arguments['<currency>'])
-  elif arguments['convert']:
-    amount = float(arguments['<amount>'])
-    aboki.convert(amount, arguments['<FROM>'], arguments['<TO>'])
-  elif arguments['test']:
-    aboki.test()
+    if arguments['recent']:
+        aboki.recent()
+    elif arguments['rates']:
+        aboki.rates(arguments['<type>'])
+    elif arguments['rate']:
+        aboki.rate(arguments['<currency>'])
+    elif arguments['convert']:
+        amount = float(arguments['<amount>'])
+        aboki.convert(amount, arguments['<FROM>'], arguments['<TO>'])
+    elif arguments['test']:
+        aboki.test()
 
 
 if __name__ == '__main__':
-  main()
+    main()
