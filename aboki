@@ -105,7 +105,7 @@ class Aboki:
         exit(1)
       return resp.text
 
-    except exceptions.RequestException, e:
+    except (exceptions.RequestException, e): # When exceptions are more than one, they need to be wrapped in parenthesis in py3
         print('Error connecting. Please check network and try again.')
         print('If the problem persists, please email r@akinjide.me.')
         exit(1)
@@ -201,13 +201,13 @@ class Aboki:
     rates = self.get_current_rate()
     FROM = FROM.strip().lower()
     TO = TO.strip().lower()
-    error = 'Oops! You are trying to do something useful.  FROM: %s, TO: %s' % (FROM, TO)
+    error = 'Oops! You are trying to do something useful. Please use any available currencies for conversion'
 
     try:
       assert FROM and TO and 'ngn' in (FROM, TO), error
       assert FROM in self.currencies or TO in self.currencies, error
-    except AssertionError, e:
-      print(e)
+    except (AssertionError): # Wrapped exceptions in parenthesis
+      print(error) # AssertionError isn't handled during conversion because 'e' is undefined
       exit(1)
 
     ojson = {FROM: amount}
